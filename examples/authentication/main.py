@@ -61,11 +61,11 @@ def login(redirect_to: str = '/') -> RedirectResponse | None:
     def try_login() -> None:  # local function to avoid passing username and password as arguments
         if not username.value:
             ui.notify('Missing username', color='negative')
-            focus(username)
+            username.run_method('focus')
             return
 
         if not password.value:
-            focus(password)
+            password.run_method('focus')
             return
 
         if passwords.get(username.value) != password.value:
@@ -81,10 +81,6 @@ def login(redirect_to: str = '/') -> RedirectResponse | None:
         ui.button('Log in', on_click=try_login)
 
     return None
-
-
-def focus(element):
-    ui.run_javascript(f'getElement({element.id}).$refs.qRef.focus()')
 
 
 if __name__ in {'__main__', '__mp_main__'}:
