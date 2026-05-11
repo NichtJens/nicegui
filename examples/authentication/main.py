@@ -27,14 +27,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         path = request.url.path
-
-        if (
-            app.storage.user.get('authenticated', False)
-            or path in unrestricted_page_routes
-            or path.startswith('/_nicegui')
-        ):
+        if app.storage.user.get('authenticated') or path in unrestricted_page_routes or path.startswith('/_nicegui'):
             return await call_next(request)
-
         return RedirectResponse(f'/login?redirect_to={path}')
 
 
@@ -56,25 +50,15 @@ def test_page() -> None:
 
 @ui.page('/login')
 def login(redirect_to: str = '/') -> RedirectResponse | None:
-    if app.storage.user.get('authenticated', False):
+    if app.storage.user.get('authenticated'):
         return RedirectResponse('/')
 
-    def try_login() -> None:  # local function to avoid passing username and password as arguments
-        if not username.value:
-            ui.notify('Missing username', color='negative')
-            username.run_method('focus')
-            return
-
-        if not password.value:
-            password.run_method('focus')
-            return
-
-        if passwords.get(username.value) != password.value:
+    def try_login() -> None:
+        if passwords.get(username.value) == password.value:
+            app.storage.user.update(username=username.value, authenticated=True)
+            ui.navigate.to(redirect_to)
+        else:
             ui.notify('Wrong username or password', color='negative')
-            return
-
-        app.storage.user.update(username=username.value, authenticated=True)
-        ui.navigate.to(redirect_to)  # go back to where the user wanted to go
 
     with ui.card().classes('absolute-center items-stretch'):
         username = ui.input('Username').props('autofocus').on('keydown.enter', try_login)
