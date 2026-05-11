@@ -56,7 +56,7 @@ def login(redirect_to: str = '/') -> RedirectResponse | None:
     def try_login() -> None:
         if passwords.get(username.value) == password.value:
             app.storage.user.update(username=username.value, authenticated=True)
-            ui.navigate.to(redirect_to)
+            ui.navigate.to(redirect_to)  # go back to where the user wanted to go
         else:
             ui.notify('Wrong username or password', color='negative')
 
