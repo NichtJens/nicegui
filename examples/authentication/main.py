@@ -61,7 +61,7 @@ def login(redirect_to: str = '/') -> RedirectResponse | None:
             ui.notify('Wrong username or password', color='negative')
 
     with ui.card().classes('absolute-center items-stretch'):
-        username = ui.input('Username').props('autofocus').on('keydown.enter', try_login)
+        username = ui.input('Username').props('autofocus').on('keydown.enter', lambda: password.run_method('focus'))
         password = ui.input('Password', password=True, password_toggle_button=True).on('keydown.enter', try_login)
         ui.button('Log in', on_click=try_login)
 
